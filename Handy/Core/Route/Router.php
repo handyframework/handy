@@ -25,6 +25,10 @@ class Router implements RouterInterface
     */
 
     public function route($path, $callback) {
+        if(\Handy\Core\Config\ConfigHelper::get('ROUTE_STOP') == true) {
+            unset($callback, $path);
+            return;
+        }
         $args = array();
         if (empty($path)) throw new \Handy\Core\Exceptions\InvalidArgumentException('&#1074;&#1074;&#1077;&#1076;&#1080;&#1090;&#1077; &#1096;&#1072;&#1073;&#1083;&#1086;&#1085; &#1088;&#1086;&#1091;&#1090;&#1072;');
         if (!isset($callback['OID'], $callback['METHOD'])) throw new \Handy\Core\Exceptions\InvalidArgumentException('2 &#1087;&#1072;&#1088;&#1072;&#1084;&#1077;&#1090;&#1088; &#1076;&#1086;&#1083;&#1078;&#1077;&#1085; &#1087;&#1088;&#1080;&#1085;&#1080;&#1084;&#1072;&#1090;&#1100; &#1072;&#1089;&#1089;&#1086;&#1094;&#1080;&#1072;&#1090;&#1080;&#1074;&#1085;&#1099;&#1081; &#1084;&#1072;&#1089;&#1089;&#1080;&#1074; &#1089; &#1082;&#1083;&#1102;&#1095;&#1072;&#1084;&#1080; OID , METHOD');
@@ -47,6 +51,9 @@ class Router implements RouterInterface
                 }
             }
         }
-        return call_user_func_array(array($callback['OID'], $callback['METHOD']), $args);
+        if(call_user_func_array(array($callback['OID'], $callback['METHOD']), $args) == true) {
+            \Handy\Core\Config\ConfigHelper::set('ROUTE_STOP', true);
+            \Handy\Core\Config\ConfigHelper::set('ROUTE_ARGS', $args);
+        }
     }
 }
